@@ -11,12 +11,12 @@ class ArbitrageDetector {
         std::unordered_map<std::string,int> currToInt;
         std::vector<std::string> intToCurr;
 
+        double fee_percentage;
         int getorAddCurrency(const std::string& currency);
 
     public:
-        ArbitrageDetector() = default;
+        ArbitrageDetector(double fee = 0.0) : fee_percentage(fee) {}
 
-        void addExchangeRate(const std::string& source, const std::string& dest, double rate);
-        
+        void addQuote(const std::string& base, const std::string& quote, double bid, double ask);        
         void executeSearch();
 };

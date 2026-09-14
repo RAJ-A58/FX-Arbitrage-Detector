@@ -15,13 +15,21 @@ int ArbitrageDetector::getorAddCurrency(const std::string& currency) {
     return newId;
 }
 
-void ArbitrageDetector::addExchangeRate(const std::string& source, const std::string& dest, double rate) {
-    int u = getorAddCurrency(source);
-    int v = getorAddCurrency(dest);
+void ArbitrageDetector::addQuote(const std::string& base, const std::string& quote, double bid, double ask) {
+    int u = getorAddCurrency(base);
+    int v = getorAddCurrency(quote);
     
-    double weight = -std::log(rate);
-    
-    edges.push_back({u, v, weight});
+    // Selling Base for Quote (Bid price)
+    // Receive: bid * (1 - fee) Quote
+    double effective_bid = bid * (1.0 - fee_percentage);
+    double bid_weight = -std::log(effective_bid);
+    edges.push_back({u, v, bid_weight});
+
+    // Buying Base with Quote (Ask price) -> Equivalent to selling Quote for Base
+    // Receive: (1.0 / ask) * (1 - fee) Base
+    double effective_ask_rate = (1.0 / ask) * (1.0 - fee_percentage);
+    double ask_weight = -std::log(effective_ask_rate);
+    edges.push_back({v, u, ask_weight});
 }
 
 void ArbitrageDetector::executeSearch() {
